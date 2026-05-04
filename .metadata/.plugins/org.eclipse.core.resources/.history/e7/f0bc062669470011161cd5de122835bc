@@ -1,0 +1,35 @@
+package q8;
+
+import java.util.*;
+
+public class Main {
+    public static void main(String[] args) {
+
+        ArrayList<String> arrayList = new ArrayList<>();
+        arrayList.add("Harsh");    arrayList.add("Sara");   arrayList.add("Om");
+        System.out.println("ArrayList: " + arrayList);
+        arrayList.set(1, "Rohit");                          // update
+        arrayList.remove("Om");                             // delete
+        System.out.println("Search 'Harsh': " + arrayList.contains("Harsh"));
+        System.out.println("After update/delete: " + arrayList);
+
+    
+        LinkedList<Integer> linkedList = new LinkedList<>();
+        linkedList.add(100);  linkedList.add(200);  linkedList.add(300);
+        System.out.println("\nLinkedList: " + linkedList);
+        linkedList.set(0, 150);                             // update
+        linkedList.remove(Integer.valueOf(300));            // delete
+        System.out.println("Search 200: " + linkedList.contains(200));
+        System.out.println("After update/delete: " + linkedList);
+
+     
+        Vector<Double> vector = new Vector<>();
+        vector.add(12000.0);  vector.add(15000.0);  vector.add(18000.0);
+        System.out.println("\nVector: " + vector);
+        vector.set(2, 20000.0);                             // update
+        vector.remove(Double.valueOf(12000.0));             // delete
+        System.out.println("Search 15000.0: " + vector.contains(15000.0));
+        System.out.println("After update/delete: " + vector);
+    }
+}
+

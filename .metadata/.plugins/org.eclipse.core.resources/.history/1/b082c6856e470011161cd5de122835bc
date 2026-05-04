@@ -1,0 +1,1337 @@
+1.Show an example of object iteration by using following components a. For each loop b. iterator c.enumerator d. list iterator
+package q1;
+import java.util.*;
+public class IterationExample {
+    public static void main(String[] args) {
+        List<String> list = new ArrayList<>();
+        list.add("A"); list.add("B"); list.add("C");
+        for(String s : list) System.out.println(s);
+        Iterator<String> it = list.iterator();
+        while(it.hasNext()) System.out.println(it.next());
+        ListIterator<String> lit = list.listIterator();
+        while(lit.hasNext()) System.out.println(lit.next());
+        Vector<String> v = new Vector<>(list);
+        Enumeration<String> e = v.elements();
+        while(e.hasMoreElements()) System.out.println(e.nextElement());
+    }
+}
+
+2.Store the information of form in database & perform following operations (with UI) a) Store info b) Update info c) Delete info d) Display info
+CREATE DATABASE mydb;
+
+USE mydb;
+
+CREATE TABLE student(
+    id INT PRIMARY KEY,
+    name VARCHAR(50),
+    email VARCHAR(50)
+);
+package q2;
+import javax.swing.*;
+import java.awt.event.*;
+import java.sql.*;
+@SuppressWarnings("serial")
+public class StudentCRUD extends JFrame implements ActionListener {
+    JTextField t1, t2, t3;
+    JButton b1, b2, b3, b4;
+    Connection con;
+    StudentCRUD() {
+        setLayout(null);
+        JLabel l1 = new JLabel("ID:");
+        JLabel l2 = new JLabel("Name:");
+        JLabel l3 = new JLabel("Email:");
+        l1.setBounds(50, 50, 100, 30);
+        l2.setBounds(50, 100, 100, 30);
+        l3.setBounds(50, 150, 100, 30);
+        t1 = new JTextField();
+        t2 = new JTextField();
+        t3 = new JTextField();
+        t1.setBounds(150, 50, 150, 30);
+        t2.setBounds(150, 100, 150, 30);
+        t3.setBounds(150, 150, 150, 30);
+        b1 = new JButton("Insert");
+        b2 = new JButton("Update");
+        b3 = new JButton("Delete");
+        b4 = new JButton("Display");
+        b1.setBounds(50, 220, 100, 30);
+        b2.setBounds(200, 220, 100, 30);
+        b3.setBounds(50, 270, 100, 30);
+        b4.setBounds(200, 270, 100, 30);
+        add(l1); add(l2); add(l3);
+        add(t1); add(t2); add(t3);
+        add(b1); add(b2); add(b3); add(b4);
+        b1.addActionListener(this);
+        b2.addActionListener(this);
+        b3.addActionListener(this);
+        b4.addActionListener(this);
+        setSize(400, 400);
+        setVisible(true);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        // DB Connection
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            con = DriverManager.getConnection(
+                "jdbc:mysql://localhost:3306/mydb?useSSL=false&serverTimezone=UTC",
+                "root",
+                ""   // XAMPP default password
+            );
+            System.out.println("Connected Successfully!");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    // Button actions
+    public void actionPerformed(ActionEvent e) {
+        try {
+            int id = Integer.parseInt(t1.getText());
+            String name = t2.getText();
+            String email = t3.getText();
+            // INSERT
+            if (e.getSource() == b1) {
+                PreparedStatement ps = con.prepareStatement(
+                        "INSERT INTO student VALUES(?,?,?)");
+                ps.setInt(1, id);
+                ps.setString(2, name);
+                ps.setString(3, email);
+                ps.executeUpdate();
+                JOptionPane.showMessageDialog(this, "Inserted Successfully");
+            }
+            // UPDATE
+            else if (e.getSource() == b2) {
+                PreparedStatement ps = con.prepareStatement(
+                        "UPDATE student SET name=?, email=? WHERE id=?");
+                ps.setString(1, name);
+                ps.setString(2, email);
+                ps.setInt(3, id);
+                ps.executeUpdate();
+
+                JOptionPane.showMessageDialog(this, "Updated Successfully");
+            }
+            // DELETE
+            else if (e.getSource() == b3) {
+                PreparedStatement ps = con.prepareStatement(
+                        "DELETE FROM student WHERE id=?");
+                ps.setInt(1, id);
+                ps.executeUpdate();
+
+                JOptionPane.showMessageDialog(this, "Deleted Successfully");
+            }
+            // DISPLAY
+            else if (e.getSource() == b4) {
+                Statement st = con.createStatement();
+                ResultSet rs = st.executeQuery("SELECT * FROM student");
+                String data = "";
+                while (rs.next()) {
+                    data += rs.getInt("id") + " "
+                          + rs.getString("name") + " "
+                          + rs.getString("email") + "\n";
+                }
+
+                JOptionPane.showMessageDialog(this, data);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
+        }
+    }
+    public static void main(String[] args) {
+        new StudentCRUD();
+    }
+}
+
+3.Show an example of dynamic method dispatch?
+package q3;
+class Bank {
+	public double getRateOfInterest() {
+		return 0.5;
+
+	}
+}
+class SBI extends Bank {
+
+	@Override
+	public double getRateOfInterest() {
+
+		return 1.2;
+	}
+
+}
+class Axis extends Bank {
+
+	@Override
+	public double getRateOfInterest() {
+
+		return 1.5;
+	}
+
+}
+class ICICI extends Bank {
+
+	@Override
+	public double getRateOfInterest() {
+
+		return 2.0;
+	}
+
+}
+public class Main {
+	public static void main(String[] args) {
+		Bank bank;
+		bank = new Bank();
+		System.out.println(bank.getRateOfInterest());
+		bank = new Axis();
+		System.out.println(bank.getRateOfInterest());
+		bank = new ICICI();
+		System.out.println(bank.getRateOfInterest());
+		bank = new SBI();
+		System.out.println(bank.getRateOfInterest());
+	}
+}
+
+4.Show an example of object serialization and deserialization.
+package q4;
+import java.io.*;
+
+class Student implements Serializable {
+    int id;
+    String name;
+}
+public class main {
+    public static void main(String[] args) throws Exception {
+        Student s = new Student();
+        s.id = 1; s.name = "Rahul";
+
+        ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("data.txt"));
+        oos.writeObject(s);
+
+        ObjectInputStream ois = new ObjectInputStream(new FileInputStream("data.txt"));
+        Student s2 = (Student) ois.readObject();
+
+        System.out.println(s2.name);
+    }
+}
+
+5.Show an example of comparable and comparator?
+package q5;
+import java.util.*;
+class Emp implements Comparable<Emp> {
+    String name;
+    double salary;
+    public Emp(String name, double salary) {
+        this.name   = name;
+        this.salary = salary;
+    }
+    // Comparable — natural order by name
+    @Override
+    public int compareTo(Emp other) {
+        return this.name.compareTo(other.name);
+    }
+    @Override
+    public String toString() {
+        return "Emp [name=" + name + ", salary=" + salary + "]";
+    }
+}
+// Comparator — order by salary
+class SalaryComparator implements Comparator<Emp> {
+    @Override
+    public int compare(Emp e1, Emp e2) {
+        return Double.compare(e1.salary, e2.salary);
+    }
+}
+public class Main {
+    public static void main(String[] args) {
+        List<Emp> list = new ArrayList<>();
+        list.add(new Emp("rahul",  15000));
+        list.add(new Emp("rohit", 12000));
+        list.add(new Emp("Om",    18000));
+
+        Collections.sort(list);                         // Comparable (by name)
+        System.out.println("Sorted by name: " + list);
+
+        list.sort(new SalaryComparator());               // Comparator (by salary)
+        System.out.println("Sorted by salary: " + list);
+    }
+}
+
+6.Show uses of wait() & notify() with an example.
+package q6;
+class SharedResource {
+ boolean available = false;
+ synchronized void produce(String item) throws InterruptedException {
+     while (available) {
+         wait();                
+     }
+     System.out.println("Produced: " + item);
+     available = true;
+     notify();                 
+
+ synchronized void consume() throws InterruptedException {
+     while (!available) {
+         wait();               
+     }
+     System.out.println("Consumed item");
+     available = false;
+     notify();                 
+ }
+}
+public class Main {
+ public static void main(String[] args) {
+     SharedResource res = new SharedResource();
+
+     Thread producer = new Thread(() -> {
+         try {
+             res.produce("Medicine");
+             res.produce("Report");
+         } catch (InterruptedException e) { e.printStackTrace(); }
+     });
+     Thread consumer = new Thread(() -> {
+         try {
+             res.consume();
+             res.consume();
+         } catch (InterruptedException e) { e.printStackTrace(); }
+     });
+     producer.start();
+     consumer.start();
+ }
+}
+
+7.Create a user defined exception?
+package q7;
+@SuppressWarnings("serial")
+class InvalidOperation extends Exception {
+	public InvalidOperation() {
+	
+		System.out.println("Wrong Operation");
+	}
+}
+public class Main {
+public static  void calSal(int a,int b,String operation) throws InvalidOperation {
+	// TODO Auto-generated method stub
+	if (operation.equals("+")) {
+		System.out.println(a+b);
+	} else if (operation.equals("-")) {
+		System.out.println(a-b);
+	} 
+	else if (operation.equals("*")) {
+		System.out.println(a*b);
+	} 
+	else if (operation.equals("/")) {
+		try {
+			System.out.println(a/b);
+		} catch (Exception e) {
+			// TODO: handle exception
+			System.out.println(e);
+		}
+	}else {
+		throw new InvalidOperation();
+	} 
+}
+public static void main(String[] args) {
+	try {
+		calSal(1,0,"ghk");
+	} catch (Exception e) {
+		// TODO: handle exception
+		System.out.println(e);
+	}
+}
+}
+
+8.Show an example of method overriding?
+package q8;
+class Accountant{
+	public void calSal(double sal) {
+		// TODO Auto-generated method stub
+		System.out.println(sal);
+	}
+	
+	public void calSal(double sal, double bonus) {
+		// TODO Auto-generated method stub
+		System.out.println(sal+bonus);
+	}
+}
+
+class Emp extends Accountant{
+	@Override
+	public void calSal(double sal) {
+		// TODO Auto-generated method stub
+		System.out.println("Emp with salary: "+sal);
+	}
+	
+	@Override
+	public void calSal(double sal, double bonus) {
+		// TODO Auto-generated method stub
+		System.out.println("Emp with salary and bonus: "+(sal+bonus));
+	}
+}
+public class main {
+	public static void main(String[] args) {
+		Accountant accountant = new Accountant();
+		accountant.calSal(1200);
+		accountant.calSal(12000, 120);
+		Emp emp = new Emp();
+		emp.calSal(14000);
+		emp.calSal(12002, 500);
+	}
+}
+9.Create class emp with its important attributes like name/id/sal/address. Display all the infodisplay all the info with tostring
+
+package q9;
+
+class Emp {
+	String name;
+	int id;
+	double sal;
+	String address;
+
+	public void dispInfo(String name, int id, double sal, String address) {
+		// TODO Auto-generated method stub
+		System.out.println(name);
+		System.out.println(id);
+		System.out.println(sal);
+		System.out.println(address);
+//		System.out.println("harsh");
+	}
+
+	public Emp(String name, int id, double sal, String address) {
+		// TODO Auto-generated constructor stub
+		this.name = name;
+		this.id = id;
+		this.sal = sal;
+		this.address = address;
+	}
+
+	@Override
+	public String toString() {
+		return "Emp [name=" + name + ", id=" + id + ", sal=" + sal + ", address=" + address + "]";
+	}
+
+}
+
+public class Main {
+	public static void main(String[] args) {
+		Emp emp = new Emp("Rahul", 12, 120, "borivali");
+		System.out.println(emp);
+		emp.dispInfo("Rahul", 120, 12000, "virar");
+	}
+
+}
+
+10.Show an example of object cloning? Override hashcode and equal contract?
+package q10;
+class Student implements Cloneable {
+    int id;
+    String name;
+
+    Student(int id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    protected Object clone() throws CloneNotSupportedException {
+        return super.clone(); // shallow copy
+    }
+
+    void display() {
+        System.out.println("ID: " + id + ", Name: " + name);
+    }
+}
+
+public class main {
+    public static void Main(String[] args) {
+        try {
+            Student s1 = new Student(101, "Rahul");
+
+            Student s2 = (Student) s1.clone();
+
+            s1.display();
+            s2.display();
+
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+package q10;
+
+class Employee {
+    int id;
+    String name;
+
+    Employee(int id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+
+        if (obj == null || getClass() != obj.getClass())
+            return false;
+
+        Employee e = (Employee) obj;
+
+        return id == e.id && name.equals(e.name);
+    }
+
+
+    public int hashCode() {
+        return 31 * id + name.hashCode();
+    }
+}
+
+public class Main1 {
+    public static void main(String[] args) {
+        Employee e1 = new Employee(1, "Amit");
+        Employee e2 = new Employee(1, "Rahul");
+
+        System.out.println("Equals: " + e1.equals(e2));
+        System.out.println("HashCode e1: " + e1.hashCode());
+        System.out.println("HashCode e2: " + e2.hashCode());
+    }
+}
+
+11.Do Authentication and Authorization with database Credential username = admin , password = admin
+CREATE DATABASE mydb1;
+USE mydb;
+CREATE TABLE users (
+    username VARCHAR(50),
+    password VARCHAR(50),
+    role VARCHAR(50)
+);
+INSERT INTO users VALUES ('admin', 'admin', 'ADMIN_ROLE');
+
+package q11;
+import java.sql.*;
+import java.util.Scanner;
+public class AuthDemo {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        try {
+            // Step 1: Take input
+            System.out.print("Enter Username: ");
+            String username = sc.nextLine();
+
+            System.out.print("Enter Password: ");
+            String password = sc.nextLine();
+
+            // Step 2: Load Driver
+            Class.forName("com.mysql.cj.jdbc.Driver");
+
+            // Step 3: Connect to DB
+            Connection con = DriverManager.getConnection(
+                "jdbc:mysql://localhost:3306/mydb1?useSSL=false&serverTimezone=UTC",
+                "root",
+                ""   // XAMPP default
+            );
+
+            // Step 4: Check credentials
+            PreparedStatement ps = con.prepareStatement(
+                "SELECT role FROM users WHERE username=? AND password=?");
+
+            ps.setString(1, username);
+            ps.setString(2, password);
+
+            ResultSet rs = ps.executeQuery();
+
+            // Step 5: Authentication + Authorization
+            if (rs.next()) {
+                String role = rs.getString("role");
+
+                System.out.println("Login Successful!");
+                System.out.println("Role: " + role);
+
+                // Authorization
+                if (role.equals("ADMIN_ROLE")) {
+                    System.out.println("Access: Full Admin Rights");
+                } else {
+                    System.out.println("Access: Limited User Rights");
+                }
+
+            } else {
+                System.out.println("Invalid Username or Password!");
+            }
+
+            con.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+12.Show an example of super keyword?
+package q12;
+class Manager {
+	String t1 = "dshd";
+	String t2 = "dshg";
+
+	public Manager() {
+		System.out.println("Parent constructor");
+	}
+
+	public void displayTask() {
+		System.out.println("Parent class method");
+	}
+}
+class Emp extends Manager {
+
+	public Emp() {
+		super();
+		System.out.println("Child");
+		System.out.println(super.t1);
+		System.out.println(super.t2);
+	}
+
+	public void display() {
+		super.displayTask();
+	}
+}
+public class Main {
+	public static void main(String[] args) {
+		Emp emp = new Emp();
+		emp.display();
+	}
+}
+
+13.Write an example of anonymous inner class in case class. Pass class as a parameter by usinginner class
+package q13;
+
+abstract class Greeting {
+    abstract void say();
+}
+
+class Demo {
+
+    static void display(Greeting g) {
+        g.say();
+    }
+
+    public static void main(String[] args) {
+
+
+        Greeting g1 = new Greeting() {
+            @Override
+            void say() {
+                System.out.println("Hello from anonymous class!");
+            }
+        };
+
+        display(g1);
+
+ 
+        display(new Greeting() {
+            @Override
+            void say() {
+                System.out.println("Hello again!");
+            }
+        });
+    }
+}
+
+14.Write the pojo for following attributes? a. Name b. salary c. id
+package q14;
+public class Employee {
+    private String name;
+    private double salary;
+    private int id;
+    public String getName() { return name; }
+    public double getSalary() { return salary; }
+    public int getId() { return id; }
+    public void setName(String name) { this.name = name; }
+    public void setSalary(double salary) { this.salary = salary; }
+    public void setId(int id) { this.id = id; }
+    public static void main(String[] args) {
+        Employee emp = new Employee();
+        emp.setName("Alice");
+        emp.setSalary(60000.0);
+        emp.setId(101);
+        System.out.println(emp.getName() + " " +
+                           emp.getSalary() + " " +
+                           emp.getId());
+    }
+}
+
+15.com.hospital.staff.doctor.salary.salary -protected calculatesalary(double amt,double tax) createfollowing packages and access it. I) direct access ii) by importing
+com.hospital.staff.doctor
+package com.hospital.staff.doctor;
+import com.hospital.staff.doctor.salary.Salary;
+public class Doctor1 extends Salary {
+	public static void main(String[] args) {
+		Doctor1 doctor1 = new Doctor1();
+		System.out.println(doctor1.calculateSalary(12, 1));;
+	}
+}
+package com.hospital.staff.doctor;
+
+public class Doctor2 extends com.hospital.staff.doctor.salary.Salary{
+	public static void main(String[] args) {
+		Doctor2 doctor2 = new Doctor2();
+		System.out.println(doctor2.calculateSalary(12, 1));
+		
+	} 
+	
+}
+
+com.hospital.staff.doctor.salary
+package com.hospital.staff.doctor.salary;
+public class Salary {
+	protected double calculateSalary(double amt,double tax) {
+		// TODO Auto-generated method stub
+		return (amt-tax);
+	}
+}
+
+16.Show an example of thread synchronization by using method.
+package q16;
+class Counter {
+    int count = 0;
+
+    // synchronized ensures only ONE thread executes this method at a time
+    synchronized void increment() {
+        count++;
+    }
+}
+public class Main {
+    public static void main(String[] args) throws InterruptedException {
+
+        Counter counter = new Counter();
+        Thread t1 = new Thread(() -> {
+            for (int i = 0; i < 1000; i++) {
+                counter.increment();
+            }
+        });
+        Thread t2 = new Thread(() -> {
+            for (int i = 0; i < 1000; i++) {
+                counter.increment();
+            }
+        });
+        t1.start();
+        t2.start();
+        // Wait for both threads to finish
+        t1.join();
+        t2.join();
+        System.out.println("Final Count: " + counter.count);
+    }
+}
+
+17.Show uses of following keywords? Public/private/protected/default
+package q17;
+public class Main {
+	public String pub="public";
+	protected String pro="protected";
+	private String def="default";
+	private String priv="private";
+	public static void main(String[] args) {
+		Main main = new Main();
+		System.out.println("within package within a class: "+main.pub);
+		System.out.println("within package within a class: "+main.pro);
+		System.out.println("within package within a class: "+main.getDef());
+		System.out.println("within package within a class: "+main.priv);
+	}
+	public String getDef() {
+		return def;
+	}
+	public void setDef(String def) {
+		this.def = def;
+	}
+}
+18.Show an example of creating a file , taking input , reading the file and deleting the file.
+package q18;
+import java.io.*;
+public class FileDemo {
+    public static void main(String[] args) {
+        try {
+  
+            File file = new File("demo.txt");
+
+            if (file.createNewFile()) {
+                System.out.println("File created: " + file.getName());
+            } else {
+                System.out.println("File already exists.");
+            }
+
+            FileWriter writer = new FileWriter(file);
+            writer.write("Hello, Java File Handling!\n");
+            writer.write("This is line 2.");
+            writer.close();
+            System.out.println("Data written to file.");
+            BufferedReader reader = new BufferedReader(new FileReader(file));
+            String line;
+            System.out.println("--- File Contents ---");
+            while ((line = reader.readLine()) != null) {
+                System.out.println(line);
+            }
+            reader.close();
+            // Step 4: Delete the file
+            if (file.delete()) {
+                System.out.println("File deleted successfully.");
+            } else {
+                System.out.println("File not deleted.");
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+19.Show an example of co-variant return type?
+package q19;
+class Vehicle {
+    Vehicle getInstance() {
+        return new Vehicle();
+    }
+    void show() {
+        System.out.println("I am Vehicle");
+    }
+}
+class Car extends Vehicle {
+    @Override
+    Car getInstance() {
+        return new Car();
+    }
+
+    @Override
+    void show() {
+        System.out.println("I am Car");
+    }
+}
+public class Main {
+    public static void main(String[] args) {
+
+        Vehicle v = new Vehicle();
+        v.getInstance().show();
+
+        Car c = new Car();
+        c.getInstance().show(); 
+    }
+}
+20.Show an example of exception propagation?
+package q20;
+class Main {
+    static void method3() {
+        int[] arr = new int[3];
+        arr[5] = 10;  
+    }
+
+    static void method2() {
+        method3(); 
+    }
+
+    static void method1() {
+        method2();   
+    }
+
+    public static void main(String[] args) {
+        try {
+            method1();
+        } catch (ArrayIndexOutOfBoundsException e) {
+            System.out.println("Exception caught in main: " + e.getMessage());
+        }
+    }
+}
+21.Put the Thread on sleeping state for 5000 MS.
+package q21;
+class TestSleep extends Thread {
+
+    @Override
+    public void run() {
+        for (int i = 1; i < 5; i++) {
+            try {
+                Thread.sleep(5000); // pause for 5 seconds
+            } catch (InterruptedException e) {
+                System.out.println(e);
+            }
+            System.out.println(Thread.currentThread().getName() + " : " + i);
+        }
+    }
+}
+public class Main2 {
+    public static void main(String[] args) {
+
+        TestSleep t1 = new TestSleep();
+        TestSleep t2 = new TestSleep();
+
+        t1.start();
+        t2.start();
+    }
+}
+22.Show an example of parameterized constructor.
+
+package q22;
+class Emp {
+ String name;
+ int    id;
+ double sal;
+ String address;
+ public Emp(String name, int id, double sal, String address) {
+     this.name    = name;
+     this.id      = id;
+     this.sal     = sal;
+     this.address = address;
+ }
+ @Override
+ public String toString() {
+     return "Emp [name=" + name + ", id=" + id
+             + ", sal=" + sal + ", address=" + address + "]";
+ }
+}
+public class Main {
+ public static void main(String[] args) {
+     Emp emp = new Emp("Rahul", 12, 12000, "Borivali");
+     System.out.println(emp);
+ }
+}
+
+23.Write an example of containment(has-a) show aggregation/composition
+package q23;
+class Hobbies{
+	String h1;
+	String h2;
+	
+	public Hobbies(String h1, String h2) {
+		this.h1=h1;
+		this.h2=h2;
+	}
+
+	@Override
+	public String toString() {
+		return "Hobbies [h1=" + h1 + ", h2=" + h2 + "]";
+	}
+}
+
+class Address{
+	String city_name;
+	String area_name;
+	
+	public Address(String city_name, String area_name) {
+		this.city_name=city_name;
+		this.area_name=area_name;
+	}
+
+	@Override
+	public String toString() {
+		return "Address [city_name=" + city_name + ", area_name=" + area_name + "]";
+	}
+}
+
+class Emp{
+	String name;
+	int id;
+	Hobbies hobbies;
+	Address address;
+	
+	public Emp(String name, int id, Hobbies hobbies, Address address) {
+		this.name=name;
+		this.id=id;
+		this.hobbies=hobbies;
+		this.address=address;
+	}
+
+	@Override
+	public String toString() {
+		return "Emp [name=" + name + ", id=" + id + ", hobbies=" + hobbies + ", address=" + address + "]";
+	}
+	
+}
+public class main {
+	public static void main(String[] args) {
+		Hobbies hobbies = new Hobbies("cricket", "football");
+		Address address = new Address("Bhayander", "Fatak");
+		Emp emp = new Emp("harsh", 12, hobbies, address);
+		System.out.println(hobbies);
+		System.out.println(emp.hobbies);
+		System.out.println(emp.hobbies.h1);
+		System.out.println(emp.address);
+		System.out.println(emp.address.area_name);
+	}
+}
+24.Show an example of method overloading?
+package q24;
+
+class Calculator {
+
+  
+    int add(int a, int b) {
+        return a + b;
+    }
+
+    double add(double a, double b) {
+        return a + b;
+    }
+
+    int add(int a, int b, int c) {
+        return a + b + c;
+    }
+
+    String add(String a, String b) {
+        return a + b;
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+
+        Calculator cal = new Calculator();
+
+        System.out.println(cal.add(3, 4));          // 7
+        System.out.println(cal.add(3.5, 4.5));      // 8.0
+        System.out.println(cal.add(1, 2, 3));       // 6
+        System.out.println(cal.add("Hi", " Java")); // Hi Java
+    }
+}
+25.Create a Master page by using Swing(Jmenu, Jmenubar, Jmenuitem) Menubar consist : Home,Doctor , Patient Home consist: About us, services, Exit Doctor consist : Doctor info, Doctor Registration Patient consist : Patient details , Billing, Exit.
+CREATE DATABASE hospital;
+
+USE hospital;
+
+-- Doctor table
+CREATE TABLE doctor (
+    id INT PRIMARY KEY,
+    name VARCHAR(50),
+    specialization VARCHAR(50)
+);
+
+-- Patient table
+CREATE TABLE patient (
+    id INT PRIMARY KEY,
+    name VARCHAR(50),
+    disease VARCHAR(50),
+    bill DOUBLE
+);
+
+package q25;
+
+import javax.swing.*;
+import java.awt.event.*;
+import java.sql.*;
+
+public class HospitalSystem extends JFrame implements ActionListener {
+
+    JMenuBar mb;
+    JMenu home, doctor, patient;
+    JMenuItem about, services, exit1;
+    JMenuItem docInfo, docReg;
+    JMenuItem patDetails, billing, exit2;
+
+    Connection con;
+
+    HospitalSystem() {
+
+        setTitle("Hospital Management System");
+        setSize(500, 400);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+       
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            con = DriverManager.getConnection(
+                "jdbc:mysql://localhost:3306/hospital?useSSL=false&serverTimezone=UTC",
+                "root",
+                ""   // XAMPP default
+            );
+            System.out.println("DB Connected");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+   
+        mb = new JMenuBar();
+
+        home = new JMenu("Home");
+        doctor = new JMenu("Doctor");
+        patient = new JMenu("Patient");
+
+ 
+        about = new JMenuItem("About Us");
+        services = new JMenuItem("Services");
+        exit1 = new JMenuItem("Exit");
+
+        home.add(about);
+        home.add(services);
+        home.addSeparator();
+        home.add(exit1);
+
+        // Doctor
+        docInfo = new JMenuItem("Doctor Info");
+        docReg = new JMenuItem("Doctor Registration");
+
+        doctor.add(docInfo);
+        doctor.add(docReg);
+
+
+        patDetails = new JMenuItem("Patient Details");
+        billing = new JMenuItem("Billing");
+        exit2 = new JMenuItem("Exit");
+
+        patient.add(patDetails);
+        patient.add(billing);
+        patient.addSeparator();
+        patient.add(exit2);
+
+        mb.add(home);
+        mb.add(doctor);
+        mb.add(patient);
+
+        setJMenuBar(mb);
+
+
+        about.addActionListener(this);
+        services.addActionListener(this);
+        exit1.addActionListener(this);
+        docInfo.addActionListener(this);
+        docReg.addActionListener(this);
+        patDetails.addActionListener(this);
+        billing.addActionListener(this);
+        exit2.addActionListener(this);
+
+        setVisible(true);
+    }
+
+    public void actionPerformed(ActionEvent e) {
+
+        try {
+
+            if (e.getSource() == about) {
+                JOptionPane.showMessageDialog(this, "Hospital Management System");
+            }
+
+            else if (e.getSource() == services) {
+                JOptionPane.showMessageDialog(this, "Services: OPD, ICU, Emergency");
+            }
+
+            // DOCTOR REGISTRATION (INSERT)
+            else if (e.getSource() == docReg) {
+
+                String id = JOptionPane.showInputDialog("Enter Doctor ID:");
+                String name = JOptionPane.showInputDialog("Enter Name:");
+                String spec = JOptionPane.showInputDialog("Enter Specialization:");
+
+                PreparedStatement ps = con.prepareStatement(
+                        "INSERT INTO doctor VALUES(?,?,?)");
+
+                ps.setInt(1, Integer.parseInt(id));
+                ps.setString(2, name);
+                ps.setString(3, spec);
+
+                ps.executeUpdate();
+
+                JOptionPane.showMessageDialog(this, "Doctor Registered");
+            }
+
+          
+            else if (e.getSource() == docInfo) {
+
+                ResultSet rs = con.createStatement()
+                        .executeQuery("SELECT * FROM doctor");
+
+                String data = "";
+                while (rs.next()) {
+                    data += rs.getInt(1) + " "
+                          + rs.getString(2) + " "
+                          + rs.getString(3) + "\n";
+                }
+
+                JOptionPane.showMessageDialog(this, data);
+            }
+
+         
+            else if (e.getSource() == patDetails) {
+
+                String id = JOptionPane.showInputDialog("Enter Patient ID:");
+                String name = JOptionPane.showInputDialog("Enter Name:");
+                String disease = JOptionPane.showInputDialog("Enter Disease:");
+
+                PreparedStatement ps = con.prepareStatement(
+                        "INSERT INTO patient(id,name,disease) VALUES(?,?,?)");
+
+                ps.setInt(1, Integer.parseInt(id));
+                ps.setString(2, name);
+                ps.setString(3, disease);
+
+                ps.executeUpdate();
+
+                JOptionPane.showMessageDialog(this, "Patient Added");
+            }
+
+            // BILLING (UPDATE)
+            else if (e.getSource() == billing) {
+
+                String id = JOptionPane.showInputDialog("Enter Patient ID:");
+                String bill = JOptionPane.showInputDialog("Enter Bill Amount:");
+
+                PreparedStatement ps = con.prepareStatement(
+                        "UPDATE patient SET bill=? WHERE id=?");
+
+                ps.setDouble(1, Double.parseDouble(bill));
+                ps.setInt(2, Integer.parseInt(id));
+
+                ps.executeUpdate();
+
+                JOptionPane.showMessageDialog(this, "Bill Updated");
+            }
+
+      
+            else if (e.getSource() == exit1 || e.getSource() == exit2) {
+                System.exit(0);
+            }
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
+        }
+    }
+
+    public static void main(String[] args) {
+        new HospitalSystem();
+    }
+}
+26.Show real time uses of vector/array list/linked list with generics? Perform following operation 1add element into collection 2- delete element from collections 3- update element from collection 4search elements from collections
+package q26;
+
+import java.util.*;
+
+public class Main {
+    public static void main(String[] args) {
+
+        ArrayList<String> arrayList = new ArrayList<>();
+        arrayList.add("Harsh");    arrayList.add("Sara");   arrayList.add("Om");
+        System.out.println("ArrayList: " + arrayList);
+        arrayList.set(1, "Rohit");                          // update
+        arrayList.remove("Om");                             // delete
+        System.out.println("Search 'Harsh': " + arrayList.contains("Harsh"));
+        System.out.println("After update/delete: " + arrayList);
+
+    
+        LinkedList<Integer> linkedList = new LinkedList<>();
+        linkedList.add(100);  linkedList.add(200);  linkedList.add(300);
+        System.out.println("\nLinkedList: " + linkedList);
+        linkedList.set(0, 150);                             // update
+        linkedList.remove(Integer.valueOf(300));            // delete
+        System.out.println("Search 200: " + linkedList.contains(200));
+        System.out.println("After update/delete: " + linkedList);
+
+     
+        Vector<Double> vector = new Vector<>();
+        vector.add(12000.0);  vector.add(15000.0);  vector.add(18000.0);
+        System.out.println("\nVector: " + vector);
+        vector.set(2, 20000.0);                             // update
+        vector.remove(Double.valueOf(12000.0));             // delete
+        System.out.println("Search 15000.0: " + vector.contains(15000.0));
+        System.out.println("After update/delete: " + vector);
+    }
+}
+
+27.Show implementation of finalize method?
+package q27;
+public class Main {
+    public static void main(String[] args) {
+        System.out.println("Program is running successfully");
+
+        Demo obj = new Demo();
+        obj = null;
+
+        System.gc();
+    }
+}
+class Demo {
+
+    @Override
+    protected void finalize() throws Throwable {
+        System.out.println("Finalize method called");
+    }
+}
+
+28.Show an example of programming by contract?
+package q28;
+class BankAccount {
+    private double balance;
+    BankAccount(double initialBalance) {
+
+        if (initialBalance < 0) {
+            throw new IllegalArgumentException("Initial balance cannot be negative");
+        }
+        this.balance = initialBalance;
+    }
+
+    void deposit(double amount) {
+
+        if (amount <= 0) {
+            throw new IllegalArgumentException("Deposit amount must be positive");
+        }
+
+        balance += amount;
+
+        assert balance > 0 : "Balance must be positive after deposit";
+    }
+
+    void withdraw(double amount) {
+
+        if (amount > balance) {
+            throw new IllegalStateException("Insufficient funds");
+        }
+
+        balance -= amount;
+    }
+
+    double getBalance() {
+        return balance;
+    }
+}
+public class Main {
+    public static void main(String[] args) {
+
+        BankAccount acc = new BankAccount(1000);
+
+        acc.deposit(500);
+        System.out.println(acc.getBalance());
+
+        acc.withdraw(200);
+        System.out.println(acc.getBalance()); 
+    }
+}
+
+29.Create a Thread class or runnable interface
+package q29;
+
+class Test implements Runnable {
+	@Override
+	public void run() {
+		System.out.println("thread is running");
+	}
+}
+
+public class Main {
+	public static void main(String[] args) {
+
+		Test test = new Test();
+		test.run();
+
+		Thread thread = new Thread(test);
+		thread.start();
+
+		new Thread() {
+			public void run() {
+				System.out.println("thread2 is running");
+			};
+		}.start();
+
+		new Thread(new Runnable() {
+
+			public void run() {
+				System.out.println("thread3 is running");
+			}
+
+		}).start();
+	}
+}
+
+git init
+git remote add origin https://github.com/rc720/Php_prac2.git
+git pull origin main --allow-unrelated-histories
+---------------------------------
+git add .
+git commit -m "Init"
+git push origin main
+

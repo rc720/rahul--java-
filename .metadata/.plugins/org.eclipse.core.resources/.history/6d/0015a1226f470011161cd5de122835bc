@@ -1,0 +1,24 @@
+
+public class main {
+
+}
+import java.io.*;
+
+class Student implements Serializable {
+    int id;
+    String name;
+}
+public class main {
+    public static void main(String[] args) throws Exception {
+        Student s = new Student();
+        s.id = 1; s.name = "Rahul";
+
+        ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("data.txt"));
+        oos.writeObject(s);
+
+        ObjectInputStream ois = new ObjectInputStream(new FileInputStream("data.txt"));
+        Student s2 = (Student) ois.readObject();
+
+        System.out.println(s2.name);
+    }
+}

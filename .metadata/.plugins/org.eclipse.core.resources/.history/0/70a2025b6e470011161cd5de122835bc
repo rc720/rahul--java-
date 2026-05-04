@@ -1,0 +1,42 @@
+package q9;
+
+import java.util.*;
+class Emp implements Comparable<Emp> {
+    String name;
+    double salary;
+    public Emp(String name, double salary) {
+        this.name   = name;
+        this.salary = salary;
+    }
+   
+    @Override
+    public int compareTo(Emp other) {
+        return this.name.compareTo(other.name);
+    }
+    @Override
+    public String toString() {
+        return "Emp [name=" + name + ", salary=" + salary + "]";
+    }
+}
+
+class SalaryComparator implements Comparator<Emp> {
+    @Override
+    public int compare(Emp e1, Emp e2) {
+        return Double.compare(e1.salary, e2.salary);
+    }
+}
+public class Main {
+    public static void main(String[] args) {
+        List<Emp> list = new ArrayList<>();
+        list.add(new Emp("rahul",  15000));
+        list.add(new Emp("rohit", 12000));
+        list.add(new Emp("Om",    18000));
+
+        Collections.sort(list);                         // Comparable (by name)
+        System.out.println("Sorted by name: " + list);
+
+        list.sort(new SalaryComparator());               // Comparator (by salary)
+        System.out.println("Sorted by salary: " + list);
+    }
+}
+
